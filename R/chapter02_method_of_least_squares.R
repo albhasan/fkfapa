@@ -122,15 +122,13 @@ AINV <- solve(A)
 ANS <- AINV %*% B
 
 
-# TODO: 
-# - finish
-# - check former formula, I think it is wrong
-x_caret <- ANS[1] + (ANS[2] * (k - 1) * T_s) + (ANS[3] * ((k - 1) * T_s)^2)
-#ANS * c()
+x_caret <- ANS[1] + (ANS[2] * (k - 1) * T_s) + (ANS[3] * ((k - 1) * T_s)^2) + (ANS[4] * ((k - 1) * T_s)^3)
+t_dense = seq(from = t_vec[1], to = t_vec[length(t_vec)], by = 0.1)
+x_dense = 
 
 
 ggplot2::ggplot() +
-  ggplot2::geom_point(mapping = ggplot2::aes(x = X, y = t_vec, col = "Measurement")) +
+  ggplot2::geom_point(mapping = ggplot2::aes(x = t_vec, y = X, col = "Measurement")) +
   ggplot2::geom_line(mapping = ggplot2::aes(x = t_vec, y = x_caret, col = "Estimate")) +
   ggplot2::ylab("xhat") + ggplot2::xlab("Time (Sec)") + 
   ggplot2::ggtitle("Fig. 2.3. Parabolic fit to data is pretty good, too")
