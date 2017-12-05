@@ -1,7 +1,7 @@
 # chapter02
 
 
-#---- Zeroth-Order or One-State filter ----
+#---- ZEROTH-ORDER OR ONE-STATE FILTER ----
 R <- vector()
 
 x_star <- c(1.2, 0.2, 2.9, 2.1)
@@ -10,12 +10,13 @@ k <- 1:length(x_star)
 T_s <- 1 # sampling time in seconds
 t_vec <- (k - 1) * T_s
 
-# Table 2.1 Measurement data for example
+#---- Table 2.1 Measurement data for example ----
 data.frame(t_vec, x_star)
 
-# Table 2.2 Measurement data from table 2.1 expressed more mathematically
+#---- Table 2.2 Measurement data from table 2.1 expressed more mathematically ----
 data.frame(k, t_vec, x_star)
 
+#---- Fig. 2.1. Constant 1.6 is an unreasonable fit to measurement data ----
 ggplot2::ggplot() +
   ggplot2::geom_point(mapping = ggplot2::aes(x = x_star, y = t_vec, col = "Measurement")) +
   ggplot2::geom_hline(yintercept = x_caret, mapping = ggplot2::aes(col = "Estimate")) +
@@ -26,10 +27,11 @@ R[length(R)]
 
 
 
-#---- First-Order or Two-State filter ----
+#---- FIRST_ORDER OR TWO-STATE FILTER ----
 
 
-# Listing 2.1 Solving for least-squares coefficients in the first-order fiter
+
+#---- Listing 2.1 Solving for least-squares coefficients in the first-order fiter ----
 TEE <- 0:3
 X <- c(1.2, 0.2, 2.9, 2.1)
 N <- 4
@@ -51,6 +53,7 @@ T_s <- 1 # sampling time in seconds
 k <- 1:length(X)
 t_vec <- (k - 1) * T_s
 est <- ANS[1, 1] + (ANS[2, 1] * t_vec)
+#---- Fig. 2.2. Straight-line fit to data is better than constant fit ----
 ggplot2::ggplot() +
   ggplot2::geom_point(mapping = ggplot2::aes(x = X, y = t_vec, col = "Measurement")) +
   ggplot2::geom_line(mapping = ggplot2::aes(x = t_vec, y = est, col = "Estimate")) +
@@ -59,10 +62,11 @@ ggplot2::ggplot() +
 R <- append(R, sum((est - X)^2))
 R[length(R)]
 
-#---- Second-Order or Three-State Least-Squares Filter ----
+
+#---- SECOND-ORDER OR THREE-STATE LEAST-SQUARES FILTER ----
 
 
-# Listing 2.2 Solving for least-squared coeficients with three-state least-squares filter
+#---- Listing 2.2 Solving for least-squared coeficients with three-state least-squares filter ----
 T_s <- 1 # sampling time in seconds
 TEE <- 0:3
 X <- c(1.2, 0.2, 2.9, 2.1)
@@ -85,6 +89,7 @@ B <- c(sum(X), sum((t_vec * X)), sum((t_vec^2 * X)))
 ANS <- AINV %*% B
 
 x_caret <- ANS[1] + (ANS[2] * (k - 1) * T_s) + (ANS[3] * ((k - 1) * T_s)^2)
+#---- Fig. 2.3. Parabolic fit to data is pretty good, too ----
 ggplot2::ggplot() +
   ggplot2::geom_point(mapping = ggplot2::aes(x = X, y = t_vec, col = "Measurement")) +
   ggplot2::geom_line(mapping = ggplot2::aes(x = t_vec, y = x_caret, col = "Estimate")) +
@@ -93,7 +98,9 @@ ggplot2::ggplot() +
 R <- append(R, sum((x_caret - X)^2))
 R[length(R)]
 
-#---- Third-Order System ----
+
+#---- THIRD-ORDER SYSTEM ----
+
 
 T_s <- 1 # sampling time in seconds
 TEE <- 0:3
@@ -127,7 +134,7 @@ x_caret <- ANS[1] + (ANS[2] * (k - 1) * T_s) + (ANS[3] * ((k - 1) * T_s)^2) + (A
 t_dense = seq(from = t_vec[1], to = t_vec[length(t_vec)], by = 0.1)
 x_dense = ANS[1] + (ANS[2] * t_dense) + (ANS[3] * (t_dense)^2) + (ANS[4] * (t_dense^3))
 
-
+#---- Fig. 2.3. Parabolic fit to data is pretty good, too ----
 ggplot2::ggplot() +
   ggplot2::geom_point(mapping = ggplot2::aes(x = t_vec, y = X, col = "Measurement")) +
   ggplot2::geom_line(mapping = ggplot2::aes(x = t_vec, y = x_caret, col = "Estimate")) +
@@ -137,10 +144,14 @@ ggplot2::ggplot() +
 R <- append(R, sum((x_caret - X)^2))
 R[length(R)]
 
-# Table 2.3 Residual decreases as order of least-squaredpolynomial increses
+#---- Table 2.3 Residual decreases as order of least-squaredpolynomial increses ----
 data.frame(System_order = 0:(length(R)-1), R = round(R, 2))
 
-# Listing 2.3 One-state filter for extracting signal from measurement
+
+#---- Experiments with Zeroth-order or One-state filter ----
+
+
+#---- Listing 2.3 One-state filter for extracting signal from measurement ----
 N <- 0
 TS <- 0.1 # sampling time in seconds
 t_vec <- seq(0, 10, TS)
@@ -175,6 +186,7 @@ for(i in 1:NMAX){
 res.df <- as.data.frame(do.call(rbind, res))
 colnames(res.df) <- c("TEE", "X1", "X", "XHAT", "ERRX", "ERRXP", "SUMPZ1", "SUMPZ2")
 
+#---- Fig. 2.5. One-state, least-squares filter smoothesnoise measurements ----
 ggplot2::ggplot() +
   ggplot2::geom_line(mapping = ggplot2::aes(x = t_vec, y = X, col = "Measurements")) +
   ggplot2::geom_hline(yintercept = XHAT) + 
@@ -183,6 +195,7 @@ ggplot2::ggplot() +
   ggplot2::ggtitle("Fig. 2.5. One-state, least-squares filter smoothesnoise measurements") + 
   ggplot2::coord_cartesian(ylim = c(-2, 4))
 
+#---- Fig. 2.6. One-state filteryields near perfect estimate of constant signal ----
 ggplot2::ggplot() +
   ggplot2::geom_hline(yintercept = XHAT) +
   ggplot2::geom_hline(yintercept = X1[1]) + 
@@ -193,9 +206,452 @@ ggplot2::ggplot() +
 res.df["s_e"] <- res.df$X1 - res.df$XHAT
 res.df["m_e"] <- res.df$X - res.df$XHAT
 
+#---- Fig. 2.7 Estimation errors are nearly zero for one-state least-squared filter ----
 ggplot2::ggplot() +
   ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$s_e, col = "Signal & estiamte")) +
   ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$m_e, col = "Measurement & estiamte")) +
   ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
   ggplot2::ggtitle("Fig. 2.7 Estimation errors are nearly zero for one-state least-squared filter") + 
   ggplot2::coord_cartesian(ylim = c(-4, 4))
+
+
+
+#---- Listing 2.3 (modified) One-state filter for extracting signal from measurement ----
+N <- 0
+TS <- 0.1 # sampling time in seconds
+t_vec <- seq(0, 10, TS)
+SIGNOISE <- 5                     # modified
+XNOISE <- rnorm(length(t_vec), 0, SIGNOISE)
+X1 <- rep(t_vec + 3)              # modified
+X <- X1 + XNOISE
+SUM3 <- sum(X)
+NMAX <- length(t_vec) -1
+N <- NMAX
+
+A <- matrix(N)
+B <- matrix(SUM3)
+AINV <- 1/A
+ANS <- AINV %*% B
+
+i <- 1
+SUMPZ1 <- 0
+SUMPZ2 <- 0
+res <- list()
+for(i in 1:NMAX){
+  TEE <- TS * (i-1)
+  XHAT <- ANS[1,1]
+  ERRX <- X1[i] - XHAT
+  ERRXP <- X[i] - XHAT
+  ERRX2 <- (X1[i] - XHAT)^2
+  ERRXP2 <- (X[i] - XHAT)^2
+  SUMPZ1 <- ERRX2 + SUMPZ1
+  SUMPZ2 <- ERRXP2 + SUMPZ2
+  res[[i]] <- c(TEE, X1[i], X[i], XHAT, ERRX, ERRXP, SUMPZ1, SUMPZ2)
+}
+res.df <- as.data.frame(do.call(rbind, res))
+colnames(res.df) <- c("TEE", "X1", "X", "XHAT", "ERRX", "ERRXP", "SUMPZ1", "SUMPZ2")
+
+#---- Fig. 2.8. Zeroth-order least-squares filter does not capture upward trend ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estiamte")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X, col = "Measurement")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.8. Zeroth-order least-squares filter does not capture upward trend") + 
+  ggplot2::coord_cartesian(ylim = c(-10, 30))
+
+#---- Fig. 2.9. Zeroth-order least-squares filter cannot estimate slope of actual sign ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estiamte")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.9. Zeroth-order least-squares filter cannot estimate slope of actual sign") + 
+  ggplot2::coord_cartesian(ylim = c(-10, 30))
+
+res.df["s_e"] <- res.df$X1 - res.df$XHAT
+res.df["m_e"] <- res.df$X - res.df$XHAT
+
+#---- Fig. 2.10 Errors in the estimate of the signal appear to grow with time ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$s_e, col = "Signal & estiamte")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$m_e, col = "Measurement & estiamte")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.10 Errors in the estimate of the signal appear to grow with time") + 
+  ggplot2::coord_cartesian(ylim = c(-20, 20))
+
+sum(res.df["s_e"]^2)
+sum(res.df["m_e"]^2)
+
+
+
+#---- Experiments with First-order or Two-state filter ----
+
+
+#---- Listing 2.4 Two-state least-squares statements invoke the absoft random number generator on the macintosch ----
+# NOTE: Run several times to see the book's results
+TS <- 0.1
+t_vec <- seq(0, 10, TS)
+SIGNOISE <- 1
+TEE <- t_vec # 0:(length(t_vec) - 1)
+
+N <- 1:length(t_vec)
+XNOISE <- rnorm(length(N), 0, SIGNOISE)
+X1 <- rep(1, length(N))
+XD <- rep(0, length(N)) # first derivative???
+X <- X1 + XNOISE
+SUM1 <- sum(TEE)
+SUM2 <- sum(TEE^2)
+SUM3 <- sum(X)
+SUM4 <- sum(TEE * X)
+SUMPZ1 <- 0
+SUMPZ2 <- 0
+NMAX <- max(N)
+A <- matrix(c(N[length(N)], SUM1, SUM1, SUM2), nrow = 2, byrow = TRUE)
+B <- matrix(c(SUM3, SUM4), ncol = 1)
+#DET <- det(A)
+AINV <- solve(A)
+ANS <- AINV %*% B
+
+#TEE <- 0.1 * (1:NMAX)
+XHAT <- ANS[1, 1] + ANS[2, 1] * TEE
+XDHAT <- ANS[2, 1]
+ERRX <- X1 - XHAT
+ERRXD <- XD - XDHAT
+ERRXP <- X - XHAT
+ERRX2 <- (X1 - XHAT)^2
+ERRXP2 <-(X -XHAT)^2
+SUMPZ1 <- cumsum(ERRX2)
+SUMPZ2 <- cumsum(ERRXP2)
+res.df <- data.frame(TEE, X1, X, XHAT, ERRX, ERRXD, SUMPZ1, SUMPZ2)
+C <- A %*% B
+
+#----- Fig. 2.11 First-order filter has trouble in estimating zeroth-order signal ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.11 First-order filter has trouble in estimating zeroth-order signal") + 
+  ggplot2::coord_cartesian(ylim = c(0, 1.4))
+
+#---- Fig. 2.12 Errors in the estimate of the signal and its derivative are not too large -----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRX, col = "Actual x\nminus estimate")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXD, col = "Actual x Dot\nminus estimate ")) +
+  ggplot2::ylab("Differences") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.12 Errors in the estimate of the signal and its derivative are not too large") + 
+  ggplot2::coord_cartesian(ylim = c(-0.2, 0.2))
+# sum of the squares of the difference between the measurement and estiamte
+sum((res.df$X - res.df$XHAT)^2)
+
+
+
+#---- Listing 2.4 (modified) Two-state least-squares statements invoke the absoft random number generator on the macintosch ----
+# NOTE: Run several times to see the book's results
+TS <- 0.1
+t_vec <- seq(0, 10, TS)
+SIGNOISE <- 5                                     # modified
+TEE <- t_vec # 0:(length(t_vec) - 1)
+
+N <- 1:length(t_vec)
+XNOISE <- rnorm(length(N), 0, SIGNOISE)
+X1 <- TEE + 3                                    # modified
+XD <- rep(1, length(N))                          # modified
+X <- X1 + XNOISE
+SUM1 <- sum(TEE)
+SUM2 <- sum(TEE^2)
+SUM3 <- sum(X)
+SUM4 <- sum(TEE * X)
+SUMPZ1 <- 0
+SUMPZ2 <- 0
+NMAX <- max(N)
+A <- matrix(c(N[length(N)], SUM1, SUM1, SUM2), nrow = 2, byrow = TRUE)
+B <- matrix(c(SUM3, SUM4), ncol = 1)
+#DET <- det(A)
+AINV <- solve(A)
+ANS <- AINV %*% B
+
+#TEE <- 0.1 * (1:NMAX)
+XHAT <- ANS[1, 1] + ANS[2, 1] * TEE
+XDHAT <- ANS[2, 1]
+ERRX <- X1 - XHAT
+ERRXD <- XD - XDHAT
+ERRXP <- X - XHAT
+ERRX2 <- (X1 - XHAT)^2
+ERRXP2 <-(X -XHAT)^2
+SUMPZ1 <- cumsum(ERRX2)
+SUMPZ2 <- cumsum(ERRXP2)
+res.df <- data.frame(TEE, X1, X, XHAT, ERRX, ERRXD, SUMPZ1, SUMPZ2)
+C <- A %*% B
+
+
+#----- Fig. 2.13 First-order filter does a much better job of estimating first-order signal than does a zeroth-order filter ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.13 First-order filter does a much better job of estimating first-order signal than does a zeroth-order filter") + 
+  ggplot2::coord_cartesian(ylim = c(0, 14))
+
+#---- Fig. 2.14 First-order filter is able to estimate derivative and first-order signal accurately ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRX, col = "Actual x\nminus estimate")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXD, col = "Actual x Dot\nminus estimate ")) +
+  ggplot2::ylab("Differences") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.14 First-order filter is able to estimate derivative and first-order signal accurately") + 
+  ggplot2::coord_cartesian(ylim = c(-1, 1))
+sum((res.df$X - res.df$XHAT)^2)
+
+
+
+#---- Listing 2.4 (modified) Two-state least-squares statements invoke the absoft random number generator on the macintosch ----
+# NOTE: Run several times to see the book's results
+TS <- 0.1
+t_vec <- seq(0, 10, TS)
+SIGNOISE <- 50                                     # modified
+TEE <- t_vec
+
+N <- 1:length(t_vec)
+XNOISE <- rnorm(length(N), 0, SIGNOISE)
+X1 <- 5 * TEE^2 - 2 * TEE + 2                    # modified
+XD <- 10 * TEE - 2                               # modified
+X <- X1 + XNOISE
+SUM1 <- sum(TEE)
+SUM2 <- sum(TEE^2)
+SUM3 <- sum(X)
+SUM4 <- sum(TEE * X)
+SUMPZ1 <- 0
+SUMPZ2 <- 0
+NMAX <- max(N)
+A <- matrix(c(N[length(N)], SUM1, SUM1, SUM2), nrow = 2, byrow = TRUE)
+B <- matrix(c(SUM3, SUM4), ncol = 1)
+#DET <- det(A)
+AINV <- solve(A)
+ANS <- AINV %*% B
+
+#TEE <- 0.1 * (1:NMAX)
+XHAT <- ANS[1, 1] + ANS[2, 1] * TEE
+XDHAT <- ANS[2, 1]
+ERRX <- X1 - XHAT
+ERRXD <- XD - XDHAT
+ERRXP <- X - XHAT
+ERRX2 <- (X1 - XHAT)^2
+ERRXP2 <-(X -XHAT)^2
+SUMPZ1 <- cumsum(ERRX2)
+SUMPZ2 <- cumsum(ERRXP2)
+res.df <- data.frame(TEE, X1, X, XHAT, ERRX, ERRXD, SUMPZ1, SUMPZ2)
+C <- A %*% B
+
+#---- Fig. 2.15 First-order filter attempts to track second-order measurements ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X, col = "Measurement")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.15 First-order filter attempts to track second-order measurements") + 
+  ggplot2::coord_cartesian(ylim = c(-100, 500))
+
+#---- Fig. 2.16 On the average first-order filter estimates second-order signal ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.16 On the average first-order filter estimates second-order signal") + 
+  ggplot2::coord_cartesian(ylim = c(-100, 500))
+
+#---- Fig. 2.17 Large estimation error result when first-order filter attempts to track second-order signal ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRX, col = "Actual x\nminus estimate")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXD, col = "Actual x Dot\nminus estimate ")) +
+  ggplot2::ylab("Differences") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.17 Large estimation error result when first-order filter attempts to track second-order signal") + 
+  ggplot2::coord_cartesian(ylim = c(-40, 100))
+sum((res.df$X1 - res.df$XHAT)^2)
+sum((res.df$X - res.df$XHAT)^2)
+
+
+
+
+#---- Experiments with Second-order or Three-state filter ----
+
+
+
+#---- Listing 2.5 Three-state least-squares filter for extracting signal from measurement ----
+SIGNOISE <- 1
+TS <- 0.1
+N <- 0
+SUM1 <- SUM2 <- SUM3 <- SUM4 <- SUM5 <- SUM6 <- SUM7 <- SUMPZ1 <- SUMPZ2 <- 0
+TEE <- seq(0, 10, TS)
+N <- length(TEE)
+XNOISE <- rnorm(N, mean = 0, sd = SIGNOISE)
+X1 <- 1
+XD <- 0
+XDD <- 0
+X <- X1 + XNOISE
+SUM1 <- sum(TEE)
+SUM2 <- sum(TEE^2)  
+SUM3 <- sum(X)
+SUM4 <- sum(TEE * X)
+SUM5 <- sum(TEE^3)
+SUM6 <- sum(TEE^4)
+SUM7 <- sum(TEE^2 * X)
+NMAX <- max(N)
+A <- matrix(c(N, SUM1, SUM2, SUM1, SUM2, SUM5, SUM2, SUM5, SUM6),  ncol = 3, byrow = 3)
+B <- matrix(c(SUM3, SUM4, SUM7), ncol = 1, byrow = 3)
+#DET <- det(A)
+AINV <- solve(A)
+ANS <- AINV %*% B
+#TEE <- 0.1 * (0:NMAX)
+XHAT <- ANS[1, 1] + ANS[2, 1] * TEE + ANS[3, 1] * TEE^2
+XDHAT <- ANS[2, 1] + 2 * ANS[3, 1] * TEE
+XDDHAT <- 2 * ANS[3, 1]
+ERRX <- X1 - XHAT
+ERRXD <- XD - XDHAT
+ERRXDD <- XDD - XDDHAT
+ERRXP <- X - XHAT
+ERRX2 <- (X1 - XHAT)^2
+ERRXP2 <- (X - XHAT)^2
+SUMPZ1 <- sum(ERRX2)
+SUMPZ2 <- sum(ERRXP2)
+res.df <- data.frame(TEE, X1, X, XHAT, ERRX, ERRXD, ERRXDD, SUMPZ1, SUMPZ2)
+
+#---- Fig. 2.18 Second-order filter estimates signal is parabola even though it is a constant ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.18 Second-order filter estimates signal is parabola even though it is a constant") + 
+  ggplot2::coord_cartesian(ylim = c(0, 1.4))
+
+#---- Fig. 2.19 Estimation errors between estimates and states of signal are not terrible when the order of filter is too high ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRX, col = "Actual x\nminus estimate")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXD, col = "Actual x Dot\nminus estimate ")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXDD, col = "Actual x Double Dot\nminus estimate ")) +
+  ggplot2::ylab("Differences") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.19 Estimation errors between estimates and states of signal are not terrible when the order of filter is too high") + 
+  ggplot2::coord_cartesian(ylim = c(-0.1, 0.4))
+sum((res.df$X1 - res.df$XHAT)^2)
+sum((res.df$X - res.df$XHAT)^2)
+
+
+#---- Listing 2.5 (modified) Three-state least-squares filter for extracting signal from measurement ----
+SIGNOISE <- 5                   # modified
+TS <- 0.1
+N <- 0
+SUM1 <- SUM2 <- SUM3 <- SUM4 <- SUM5 <- SUM6 <- SUM7 <- SUMPZ1 <- SUMPZ2 <- 0
+TEE <- seq(0, 10, TS)
+N <- length(TEE)
+XNOISE <- rnorm(N, mean = 0, sd = SIGNOISE)
+X1 <- TEE + 3                   # modified
+XD <- 1                         # modified
+XDD <- 0
+X <- X1 + XNOISE
+SUM1 <- sum(TEE)
+SUM2 <- sum(TEE^2)  
+SUM3 <- sum(X)
+SUM4 <- sum(TEE * X)
+SUM5 <- sum(TEE^3)
+SUM6 <- sum(TEE^4)
+SUM7 <- sum(TEE^2 * X)
+NMAX <- max(N)
+A <- matrix(c(N, SUM1, SUM2, SUM1, SUM2, SUM5, SUM2, SUM5, SUM6),  ncol = 3, byrow = 3)
+B <- matrix(c(SUM3, SUM4, SUM7), ncol = 1, byrow = 3)
+#DET <- det(A)
+AINV <- solve(A)
+ANS <- AINV %*% B
+#TEE <- 0.1 * (0:NMAX)
+XHAT <- ANS[1, 1] + ANS[2, 1] * TEE + ANS[3, 1] * TEE^2
+XDHAT <- ANS[2, 1] + 2 * ANS[3, 1] * TEE
+XDDHAT <- 2 * ANS[3, 1]
+ERRX <- X1 - XHAT
+ERRXD <- XD - XDHAT
+ERRXDD <- XDD - XDDHAT
+ERRXP <- X - XHAT
+ERRX2 <- (X1 - XHAT)^2
+ERRXP2 <- (X - XHAT)^2
+SUMPZ1 <- sum(ERRX2)
+SUMPZ2 <- sum(ERRXP2)
+res.df <- data.frame(TEE, X1, X, XHAT, ERRX, ERRXD, ERRXDD, SUMPZ1, SUMPZ2)
+
+
+#---- Fig. 2.20 Second-order filter attempts to fit first-order signal with a parabola ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.20 Second-order filter attempts to fit first-order signal with a parabola") + 
+  ggplot2::coord_cartesian(ylim = c(0, 14))
+
+# Fig. 2.21 Second fit to first-order signal yields larger errors than first-order fit
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRX, col = "Actual x\nminus estimate")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXD, col = "Actual x Dot\nminus estimate ")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXDD, col = "Actual x Double Dot\nminus estimate ")) +
+  ggplot2::ylab("Differences") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.21 Second fit to first-order signal yields larger errors than first-order fit") + 
+  ggplot2::coord_cartesian(ylim = c(-0.5, 2))
+sum((res.df$X1 - res.df$XHAT)^2)
+sum((res.df$X - res.df$XHAT)^2)
+
+
+
+
+
+#---- Listing 2.5 (modified) Three-state least-squares filter for extracting signal from measurement ----
+SIGNOISE <- 50                              # modified
+TS <- 0.1
+N <- 0
+SUM1 <- SUM2 <- SUM3 <- SUM4 <- SUM5 <- SUM6 <- SUM7 <- SUMPZ1 <- SUMPZ2 <- 0
+TEE <- seq(0, 10, TS)
+N <- length(TEE)
+XNOISE <- rnorm(N, mean = 0, sd = SIGNOISE)
+X1 <- 5 * TEE^2 - 2 * TEE + 2               # modified
+XD <- 10 * TEE - 2                          # modified
+XDD <- 10                                   # modified
+X <- X1 + XNOISE
+SUM1 <- sum(TEE)
+SUM2 <- sum(TEE^2)  
+SUM3 <- sum(X)
+SUM4 <- sum(TEE * X)
+SUM5 <- sum(TEE^3)
+SUM6 <- sum(TEE^4)
+SUM7 <- sum(TEE^2 * X)
+NMAX <- max(N)
+A <- matrix(c(N, SUM1, SUM2, SUM1, SUM2, SUM5, SUM2, SUM5, SUM6),  ncol = 3, byrow = 3)
+B <- matrix(c(SUM3, SUM4, SUM7), ncol = 1, byrow = 3)
+#DET <- det(A)
+AINV <- solve(A)
+ANS <- AINV %*% B
+#TEE <- 0.1 * (0:NMAX)
+XHAT <- ANS[1, 1] + ANS[2, 1] * TEE + ANS[3, 1] * TEE^2
+XDHAT <- ANS[2, 1] + 2 * ANS[3, 1] * TEE
+XDDHAT <- 2 * ANS[3, 1]
+ERRX <- X1 - XHAT
+ERRXD <- XD - XDHAT
+ERRXDD <- XDD - XDDHAT
+ERRXP <- X - XHAT
+ERRX2 <- (X1 - XHAT)^2
+ERRXP2 <- (X - XHAT)^2
+SUMPZ1 <- sum(ERRX2)
+SUMPZ2 <- sum(ERRXP2)
+res.df <- data.frame(TEE, X1, X, XHAT, ERRX, ERRXD, ERRXDD, SUMPZ1, SUMPZ2)
+
+#---- Fig. 2.22 Second-order filter provides near perfect estimates of second-order signal ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$X1, col = "Actual")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$XHAT, col = "Estimate")) +
+  ggplot2::ylab("x") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.22 Second-order filter provides near perfect estimates of second-order signal") + 
+  ggplot2::coord_cartesian(ylim = c(0, 500))
+
+#---- Fig. 2.23 Error in the estimates of all states of second-order filter against second-order signal are better than all other filter fits ----
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRX, col = "Actual x\nminus estimate")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXD, col = "Actual x Dot\nminus estimate ")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = res.df$TEE, y = res.df$ERRXDD, col = "Actual x Double Dot\nminus estimate ")) +
+  ggplot2::ylab("Differences") + ggplot2::xlab("Time (Sec)") + 
+  ggplot2::ggtitle("Fig. 2.23 Error in the estimates of all states of second-order filter against second-order signal are better than all other filter fits") + 
+  ggplot2::coord_cartesian(ylim = c(-0.5, 20))
+sum((res.df$X1 - res.df$XHAT)^2)
+sum((res.df$X - res.df$XHAT)^2)
+
+
+
