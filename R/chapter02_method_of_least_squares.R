@@ -847,3 +847,151 @@ sum((res3s.df$X - res3s.df$XHAT)^2)
 
 
 #---- Accelerometer testing example ----
+
+
+
+#---- Listing 2.6 Method of least squares applied to accelerometer testing problem ----
+# Theta_k - Angle accelerometer
+# g       - gravity
+# B       - accelerometer bias
+# SF      - accelerometer scale factor error
+# K       - gravity-squared or g-squared sensitive drift
+#
+# Values on Table 2.7
+BIAS <- 10 * 10^-6 * 32  # ft/s^2
+SF <- 5 * 10^-6          # ppm
+XK <- 1 * 10^-6/32       # (s^2)/ft
+#
+SIGTH <- 0
+G <- 32.2
+#JJ <- 0
+THETDG <- seq(0, 180, 2)
+THET <- THETDG/(180/pi)                   # THETDG/57.3 # convert to radians
+THETNOISE <- rnorm(length(THET), 0, SIGTH)
+THETS <- THET + THETNOISE
+#JJ <- JJ + 1
+TEE <- 32.2 * cos(THETS)
+X <- BIAS + SF * G * cos(THETS) + XK * (G * cos(THETS))^2 - G * cos(THET) + G * cos(THETS)
+
+accelerometer_example <- function(TEE, X){
+  A <- matrix(rep(0, 9), nrow = 3)
+  A[1, 1] <- length(X)
+  A[1, 2] <- sum(TEE)
+  A[1, 3] <- sum(TEE^2)
+  A[2, 1] <- A[1, 2]
+  A[2, 2] <- A[1, 3]
+  A[2, 3] <- sum(TEE^3)
+  A[3, 1] <- A[1, 3]
+  A[3, 2] <- A[2, 3]
+  A[3, 3] <- sum(TEE^4)
+  ##DET <- det(A)
+  AINV <- solve(A)
+  B <- c(sum(X), sum(TEE * X), sum(TEE^2 * X))
+  ANS <- AINV %*% B
+  x_caret <- ANS[1] + (ANS[2] * TEE) + (ANS[3] * TEE^2)
+  return(list(data.frame(TEE, X, x_caret), ANS))
+}
+
+acc_ex.ls <- accelerometer_example(TEE, X)
+acc_ex <- acc_ex.ls[[1]]
+#---- Fig. 2.28 Whitout measurement noise, we can estimate accelerometer errors perfectly
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$x_caret, col = "Estimation")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$X, col = "Measurement")) +
+  ggplot2::ylab("y*") + ggplot2::xlab("g cos(theta*)") + 
+  ggplot2::ggtitle("Fig. 2.28 Whitout measurement noise, we can estimate accelerometer errors perfectly")
+
+
+
+
+# Another run 1
+
+# Values on Table 2.7
+BIAS <- 10 * 10^-6 * 32  # ft/s^2
+SF <- 5 * 10^-6          # ppm
+XK <- 1 * 10^-6/32       # (s^2)/ft
+#
+SIGTH <- 1 * 10^-6
+G <- 32.2
+#JJ <- 0
+THETDG <- seq(0, 180, 2)
+THET <- THETDG/(180/pi)                   # THETDG/57.3 # convert to radians
+THETNOISE <- rnorm(length(THET), 0, SIGTH)
+THETS <- THET + THETNOISE
+#JJ <- JJ + 1
+TEE <- 32.2 * cos(THETS)
+X <- BIAS + SF * G * cos(THETS) + XK * (G * cos(THETS))^2 - G * cos(THET) + G * cos(THETS)
+
+acc_ex.ls <- accelerometer_example(TEE, X)
+acc_ex <- acc_ex.ls[[1]]
+ANS <- acc_ex.ls[[2]]
+ANS
+
+#---- Fig. 2.29 With 1 miu r of measurement noise we can nearly estimate accelerometer errors perfectly
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$x_caret, col = "Estimation")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$X, col = "Measurement")) +
+  ggplot2::ylab("y*") + ggplot2::xlab("g cos(theta*)") + 
+  ggplot2::ggtitle("Fig. 2.29 With 1 miu r of measurement noise we can nearly estimate accelerometer errors perfectly")
+
+
+# Another run 2
+
+# Values on Table 2.7
+BIAS <- 10 * 10^-6 * 32  # ft/s^2
+SF <- 5 * 10^-6          # ppm
+XK <- 1 * 10^-6/32       # (s^2)/ft
+#
+SIGTH <- 10 * 10^-6
+G <- 32.2
+#JJ <- 0
+THETDG <- seq(0, 180, 2)
+THET <- THETDG/(180/pi)                   # THETDG/57.3 # convert to radians
+THETNOISE <- rnorm(length(THET), 0, SIGTH)
+THETS <- THET + THETNOISE
+#JJ <- JJ + 1
+TEE <- 32.2 * cos(THETS)
+X <- BIAS + SF * G * cos(THETS) + XK * (G * cos(THETS))^2 - G * cos(THET) + G * cos(THETS)
+
+acc_ex.ls <- accelerometer_example(TEE, X)
+acc_ex <- acc_ex.ls[[1]]
+ANS <- acc_ex.ls[[2]]
+ANS
+#---- Fig. 2.30 Estimation with miu r  of mesaurement noise
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$x_caret, col = "Estimation")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$X, col = "Measurement")) +
+  ggplot2::ylab("y*") + ggplot2::xlab("g cos(theta*)") + 
+  ggplot2::ggtitle("Fig. 2.30 Estimation with 10 miu r  of mesaurement noise")
+
+
+
+
+# Another run 3
+
+# Values on Table 2.7
+BIAS <- 10 * 10^-6 * 32  # ft/s^2
+SF <- 5 * 10^-6          # ppm
+XK <- 1 * 10^-6/32       # (s^2)/ft
+#
+SIGTH <- 100 * 10^-6
+G <- 32.2
+#JJ <- 0
+THETDG <- seq(0, 180, 2)
+THET <- THETDG/(180/pi)                   # THETDG/57.3 # convert to radians
+THETNOISE <- rnorm(length(THET), 0, SIGTH)
+THETS <- THET + THETNOISE
+#JJ <- JJ + 1
+TEE <- 32.2 * cos(THETS)
+X <- BIAS + SF * G * cos(THETS) + XK * (G * cos(THETS))^2 - G * cos(THET) + G * cos(THETS)
+
+acc_ex.ls <- accelerometer_example(TEE, X)
+acc_ex <- acc_ex.ls[[1]]
+ANS <- acc_ex.ls[[2]]
+ANS
+#---- Fig. 2.31 With 100 miu r of mesaurement noise we cannot estimate bias and scale error factors
+ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$x_caret, col = "Estimation")) +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = acc_ex$TEE, y = acc_ex$X, col = "Measurement")) +
+  ggplot2::ylab("y*") + ggplot2::xlab("g cos(theta*)") + 
+  ggplot2::ggtitle("Fig. 2.31 With 100 miu r of mesaurement noise we cannot estimate bias and scale error factors")
