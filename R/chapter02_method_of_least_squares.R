@@ -233,7 +233,7 @@ ggplot2::ggplot() +
   ggplot2::ggtitle("Fig. 2.5. One-state, least-squares filter smoothesnoise measurements") + 
   ggplot2::coord_cartesian(ylim = c(-2, 4))
 
-#---- Fig. 2.6. One-state filteryields near perfect estimate of constant signal ----
+#---- Fig. 2.6. One-state filter yields near perfect estimate of constant signal ----
 ggplot2::ggplot() +
   ggplot2::geom_hline(yintercept = res.df$XHAT[1]) +
   ggplot2::geom_hline(yintercept = res.df$X1[1]) + 
